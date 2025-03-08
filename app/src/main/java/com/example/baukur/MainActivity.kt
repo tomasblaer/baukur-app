@@ -4,47 +4,30 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.tooling.preview.Preview
-import com.example.baukur.ui.theme.BaukurTheme
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.rememberNavController
+import com.example.baukur.ui.screens.LoginScreen
+import com.example.baukur.ui.screens.RegisterScreen
+import kotlinx.serialization.Serializable
 
 class MainActivity : ComponentActivity() {
+
+    @Serializable
+    object Login
+    @Serializable
+    object Register
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            BaukurTheme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    LoginForm(
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
+            val navController = rememberNavController();
+            NavHost(navController = navController, startDestination = Login) {
+                composable<Login> { LoginScreen(onNavigateToRegister = { navController.navigate(route = Register) }) }
+                composable<Register> { RegisterScreen() }
             }
+
         }
-    }
-}
-
-@Composable
-fun LoginForm(modifier: Modifier = Modifier) {
-    TextField(
-        value = "",
-        onValueChange = { },
-        label = { Text("Username") },
-        modifier = modifier
-    )
-}
-
-@Preview(showBackground = true)
-@Composable
-fun GreetingPreview() {
-    BaukurTheme {
-        LoginForm()
     }
 }

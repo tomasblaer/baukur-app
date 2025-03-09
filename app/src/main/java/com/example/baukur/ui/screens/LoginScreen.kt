@@ -1,67 +1,71 @@
 package com.example.baukur.ui.screens
 
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextField
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.layout.*
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.dp
 import com.example.baukur.ui.theme.BaukurTheme
 
 @Composable
 fun LoginScreen(onNavigateToRegister: () -> Unit) {
     BaukurTheme {
-        Scaffold (
+        Scaffold(
             modifier = Modifier.fillMaxSize()
-
         ) { innerPadding ->
-            Column(
-                modifier = Modifier.padding(innerPadding)
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(innerPadding),
+                contentAlignment = Alignment.Center
             ) {
-                UsernameField()
-                PasswordField()
-                Button(onClick = onNavigateToRegister) {
-                    Text("Register")
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    UsernameField()
+                    Spacer(modifier = Modifier.height(8.dp))
+                    PasswordField()
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Button(
+                        onClick = onNavigateToRegister,
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = Color(0xFFFF4081),
+                            contentColor = Color.White)
+                        ) {
+                        Text("Register")
+                    }
                 }
             }
         }
     }
 }
 
+
+
 @Composable
 fun UsernameField(modifier: Modifier = Modifier) {
-    Column {
-        var username by remember { mutableStateOf("") }
-        TextField(
-            value = username,
-            onValueChange = { username = it },
-            label = { Text("Username") },
-            modifier = modifier
-        )
-    }
+    var username by remember { mutableStateOf("") }
+    TextField(
+        value = username,
+        onValueChange = { username = it },
+        label = { Text("Username") },
+        modifier = modifier
+    )
 }
 
 @Composable
 fun PasswordField(modifier: Modifier = Modifier) {
-    Column {
-        var password by remember { mutableStateOf("") }
-//        var passwordVisibility: Boolean by remember { mutableStateOf(false) }
-        TextField(
-//            visualTransformation = if (passwordVisibility) VisualTransformation.None else PasswordVisualTransformation(),
-            value = password,
-            onValueChange = { password = it },
-            label = { Text("Password") },
-            modifier = modifier,
-        )
-    }
+    var password by remember { mutableStateOf("") }
+    TextField(
+        value = password,
+        onValueChange = { password = it },
+        label = { Text("Password") },
+        modifier = modifier
+    )
 }
 
 @Preview(showBackground = true)

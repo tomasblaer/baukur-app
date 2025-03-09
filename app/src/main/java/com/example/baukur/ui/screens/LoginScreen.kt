@@ -12,6 +12,8 @@ import com.example.baukur.ui.theme.BaukurTheme
 
 @Composable
 fun LoginScreen(onNavigateToRegister: () -> Unit) {
+//    var email by remember { mutableStateOf("") }
+//    var password by remember { mutableStateOf("") }
     BaukurTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize()
@@ -31,13 +33,20 @@ fun LoginScreen(onNavigateToRegister: () -> Unit) {
                     PasswordField()
                     Spacer(modifier = Modifier.height(16.dp))
                     Button(
-                        onClick = onNavigateToRegister,
+                        onClick = {
+
+                        },
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFFF4081),
                             contentColor = Color.White)
-                        ) {
+                    ) {
+                        Text("Login")
+                    }
+                    TextButton(onClick = onNavigateToRegister) {
+                        Text("Don't have an account? ", color = Color.Gray)
                         Text("Register")
                     }
+
                 }
             }
         }
@@ -48,11 +57,11 @@ fun LoginScreen(onNavigateToRegister: () -> Unit) {
 
 @Composable
 fun UsernameField(modifier: Modifier = Modifier) {
-    var username by remember { mutableStateOf("") }
+    var email by remember { mutableStateOf("") }
     TextField(
-        value = username,
-        onValueChange = { username = it },
-        label = { Text("Username") },
+        value = email,
+        onValueChange = { email = it },
+        label = { Text("Email") },
         modifier = modifier
     )
 }

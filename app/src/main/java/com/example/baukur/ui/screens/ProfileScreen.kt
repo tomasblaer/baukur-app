@@ -18,7 +18,7 @@ import com.example.baukur.R
 import com.example.baukur.ui.theme.BaukurTheme
 
 @Composable
-fun ProfileScreen(onLogout: () -> Unit) {
+fun ProfileScreen(onNavigateToLogin: () -> Unit) {
     BaukurTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
@@ -42,7 +42,7 @@ fun ProfileScreen(onLogout: () -> Unit) {
                     ProfileInfo(label = "Email", value = "johndoe@example.com")
                     Spacer(modifier = Modifier.height(24.dp))
                     Button(
-                        onClick = onLogout,
+                        onClick = onNavigateToLogin,
                         colors = ButtonDefaults.buttonColors(
                             containerColor = Color(0xFFFF4081), // Pink button
                             contentColor = Color.White
@@ -70,5 +70,5 @@ fun ProfileInfo(label: String, value: String) {
 @Preview(showBackground = true)
 @Composable
 fun ProfilePreview() {
-    ProfileScreen(onLogout = {})
+    ProfileScreen(onNavigateToLogin = {})
 }

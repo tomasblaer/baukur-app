@@ -1,7 +1,6 @@
 package com.example.baukur
 
 import android.os.Bundle
-import android.provider.ContactsContract.Profile
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
@@ -29,8 +28,8 @@ class MainActivity : ComponentActivity() {
             val navController = rememberNavController();
             NavHost(navController = navController, startDestination = Login) {
                 composable<Login> { LoginScreen(onNavigateToRegister = { navController.navigate(route = Register) }) }
-                composable<Register> { RegisterScreen() }
-                composable<Profile> { ProfileScreen(onLogout = { navController.navigate(route = Login) }) }
+                composable<Register> { RegisterScreen(onNavigateToLogin = { navController.navigate(route = Login) } ) }
+                composable<Profile> { ProfileScreen(onNavigateToLogin = { navController.navigate(route = Login) }) }
             }
 
         }

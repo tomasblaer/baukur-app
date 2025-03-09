@@ -21,6 +21,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.baukur.ui.screens.EditProfileScreen
 import com.example.baukur.ui.screens.HomeScreen
 import com.example.baukur.ui.screens.LoginScreen
 import com.example.baukur.ui.screens.ProfileScreen
@@ -39,6 +40,8 @@ object Profile
 object Home
 @Serializable
 object AddExpense
+@Serializable
+object EditProfile
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 
@@ -107,12 +110,36 @@ fun Navigation() {
                     })
                 }
                 composable<Profile> {
-                    ProfileScreen(onNavigateToLogin = {
-                        navController.navigate(
-                            route = Login
-                        )
-                    })
+                    ProfileScreen(
+                        onNavigateToLogin = {
+                            navController.navigate(
+                                route = Login
+                            )
+                        },
+                        onNavigateToEditProfile = {
+                            navController.navigate(
+                                route = EditProfile
+                            )
+                        }
+                    )
                 }
+
+                composable<EditProfile> {
+                    EditProfileScreen(
+                        onSaveProfile = { username, email ->
+                            navController.navigate(
+                                route = Profile
+                            )
+                        },
+                        onCancel = {
+                            navController.navigate(
+                                route = Profile
+                            )
+                        }
+                    )
+                }
+
+
                 composable<Home> { HomeScreen() }
                 composable<AddExpense> { AddExpenseScreen() }
             }

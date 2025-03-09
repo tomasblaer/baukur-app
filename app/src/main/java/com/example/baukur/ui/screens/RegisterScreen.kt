@@ -9,8 +9,10 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarResult
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
@@ -37,49 +39,31 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit) {
     val composableScope = rememberCoroutineScope();
     val snackbarHostState = remember { SnackbarHostState() }
 
-    BaukurTheme {
-        Scaffold(
-            modifier = Modifier.fillMaxSize(),
-            snackbarHost = {
-                SnackbarHost(hostState = snackbarHostState)
-            },
-//            floatingActionButton = {
-//                ExtendedFloatingActionButton(
-//                    onClick = {
-//                        composableScope.launch {
-//                            snackbarHostState.showSnackbar("Snackbar")
-//                        }
-//                    }
-//                ) {
-//                    Text("Add")
-//                }
-//            }
-        ) { innerPadding ->
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(innerPadding),
-                contentAlignment = Alignment.Center
-            ) {
-                Column(
-                    modifier = Modifier.padding(16.dp),
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                ) {
-                    // why does this not show when below ;(
-                    RegisterForm(snackbarHostState = snackbarHostState)
-                    Spacer(modifier = Modifier.height(16.dp))
-                    TextButton(onClick = onNavigateToLogin) {
-                        Text("Already have an account? ", color = Color.Gray)
-                        Text("Log in")
-                    }
-                }
+    Box(
+        modifier = Modifier
+            .fillMaxSize(),
+        contentAlignment = Alignment.Center
+    ) {
+        Column(
+            modifier = Modifier.padding(16.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+        ) {
+            // why does this not show when below ;(
+            RegisterForm(
+                snackbarHostState = snackbarHostState,
+                onNavigateToLogin = onNavigateToLogin
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            TextButton(onClick = onNavigateToLogin) {
+                Text("Already have an account? ", color = Color.Gray)
+                Text("Log in")
             }
         }
     }
 }
 
 @Composable
-fun RegisterForm(snackbarHostState: SnackbarHostState) {
+fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val composableScope = rememberCoroutineScope();
@@ -98,10 +82,24 @@ fun RegisterForm(snackbarHostState: SnackbarHostState) {
         onClick = {
             try {
                 composableScope.launch {
-                    RetrofitInstance.api.createUser(CreateUserPayload(email, password))
-                    snackbarHostState.showSnackbar("User created")
+                    val res = RetrofitInstance.api.createUser(CreateUserPayload(email, password))
+                    print(res)
+                    val result = snackbarHostState.showSnackbar(
+                        message = "User created",
+                        actionLabel = "Login",
+                        duration = SnackbarDuration.Indefinite,
+                    )
+                    when (result) {
+                        SnackbarResult.ActionPerformed -> {
+                            onNavigateToLogin()
+                        }
+                        SnackbarResult.Dismissed -> {}
+                    }
                 }
             } catch (e: Exception) {
+                composableScope.launch {
+                    snackbarHostState.showSnackbar("Failed to create user")
+                }
                 e.printStackTrace()
             }
         },

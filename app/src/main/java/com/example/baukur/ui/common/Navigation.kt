@@ -6,11 +6,18 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Snackbar
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -21,6 +28,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.example.baukur.api.network.RetrofitInstance
 import com.example.baukur.ui.screens.EditProfileScreen
 import com.example.baukur.ui.screens.HomeScreen
 import com.example.baukur.ui.screens.LoginScreen
@@ -51,21 +59,32 @@ val topLevelRoutes = listOf(
     TopLevelRoute("Profile", Profile, Icons.Default.Person),
 )
 
+val hideNavBarRoutes = listOf(
+    TopLevelRoute("Login", Login, Icons.Default.Person),
+    TopLevelRoute("Register", Register, Icons.Default.Person),
+)
+
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
+    val snackbarHostState = remember { SnackbarHostState() }
+
     BaukurTheme {
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = Color(0xFFFAF3F3),
+            snackbarHost = {
+                SnackbarHost(hostState = snackbarHostState)
+            },
             bottomBar = {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                // TODO: Hide for hiddenRoutes
                 NavigationBar {
-                    val navBackStackEntry by navController.currentBackStackEntryAsState()
-                    val currentDestination = navBackStackEntry?.destination
                     topLevelRoutes.forEach { route ->
                         NavigationBarItem(
-                            icon = { route.icon },
-                            label = { route.name },
+                            icon = { Icon(route.icon, route.name) },
+                            label = { Text(route.name) },
                             selected = currentDestination?.hierarchy?.any {
                                 it.hasRoute(
                                     route.route::class
@@ -73,6 +92,7 @@ fun Navigation() {
                             } == true,
                             onClick = {
                                 navController.navigate(route.route) {
+                                    RetrofitInstance.api.getUser();
                                     // Pop up to the start destination of the graph to
                                     // avoid building up a large stack of destinations
                                     // on the back stack as users select items
@@ -107,7 +127,8 @@ fun Navigation() {
                         navController.navigate(
                             route = Login
                         )
-                    })
+                    },
+                    snackbarHostState = snackbarHostState)
                 }
                 composable<Profile> {
                     ProfileScreen(

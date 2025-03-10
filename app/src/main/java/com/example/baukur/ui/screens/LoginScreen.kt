@@ -57,7 +57,6 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onNavigateToHome: () -> Unit) 
                             val res = RetrofitInstance.api.login(
                                 RequestBody.create(MediaType.parse("text/plain"), email),
                                 RequestBody.create(MediaType.parse("text/plain"), password))
-                            println(res)
                             onNavigateToHome()
                         }
                     } catch (e: Exception) {

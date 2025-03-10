@@ -29,15 +29,13 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.network.RetrofitInstance
-import com.example.baukur.ui.theme.BaukurTheme
 import kotlinx.coroutines.launch
 
 @Composable
-fun RegisterScreen(onNavigateToLogin: () -> Unit) {
+fun RegisterScreen(onNavigateToLogin: () -> Unit, snackbarHostState: SnackbarHostState) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val composableScope = rememberCoroutineScope();
-    val snackbarHostState = remember { SnackbarHostState() }
 
     Box(
         modifier = Modifier
@@ -48,7 +46,6 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit) {
             modifier = Modifier.padding(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally,
         ) {
-            // why does this not show when below ;(
             RegisterForm(
                 snackbarHostState = snackbarHostState,
                 onNavigateToLogin = onNavigateToLogin
@@ -116,5 +113,5 @@ fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> 
 @Preview(showBackground = true)
 @Composable
 fun RegisterPreview() {
-    RegisterScreen(onNavigateToLogin = {})
+    RegisterScreen(onNavigateToLogin = {}, snackbarHostState = SnackbarHostState())
 }

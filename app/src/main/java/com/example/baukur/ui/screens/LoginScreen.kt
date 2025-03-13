@@ -17,7 +17,7 @@ import okhttp3.MediaType
 import okhttp3.RequestBody
 
 @Composable
-fun LoginScreen(onNavigateToRegister: () -> Unit, onNavigateToHome: () -> Unit) {
+fun LoginScreen(onNavigateToRegister: () -> Unit, onNavigateToHome: () -> Unit, snackbarHostState: SnackbarHostState) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     val composableScope = rememberCoroutineScope()
@@ -54,10 +54,19 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onNavigateToHome: () -> Unit) 
                 onClick = {
                     try {
                         composableScope.launch {
-                            val res = RetrofitInstance.api.login(
-                                RequestBody.create(MediaType.parse("text/plain"), email),
-                                RequestBody.create(MediaType.parse("text/plain"), password))
-                            onNavigateToHome()
+                            try {
+                                val res = RetrofitInstance.api.login(
+                                    RequestBody.create(MediaType.parse("text/plain"), email),
+                                    RequestBody.create(MediaType.parse("text/plain"), password))
+                                if (res.code() == 200) {
+                                    onNavigateToHome()
+                                } else {
+                                    snackbarHostState.showSnackbar("Invalid credentials")
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+
                         }
                     } catch (e: Exception) {
                         e.printStackTrace()
@@ -81,5 +90,5 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onNavigateToHome: () -> Unit) 
 @Preview(showBackground = true)
 @Composable
 fun LoginPreview() {
-    LoginScreen(onNavigateToRegister = {}, onNavigateToHome = {})
+    LoginScreen(onNavigateToRegister = {}, onNavigateToHome = {}, SnackbarHostState())
 }

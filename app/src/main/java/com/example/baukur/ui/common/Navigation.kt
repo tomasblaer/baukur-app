@@ -10,14 +10,12 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Snackbar
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -28,7 +26,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
-import com.example.baukur.api.network.RetrofitInstance
 import com.example.baukur.ui.screens.EditProfileScreen
 import com.example.baukur.ui.screens.HomeScreen
 import com.example.baukur.ui.screens.LoginScreen
@@ -64,6 +61,11 @@ val hideNavBarRoutes = listOf(
     TopLevelRoute("Register", Register, Icons.Default.Person),
 )
 
+/*
+Essentially the entry-point for the app,
+enforces an always-present scaffold and (sometimes present) navigation bar
+ */
+
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
@@ -79,34 +81,38 @@ fun Navigation() {
             bottomBar = {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
-                // TODO: Hide for hiddenRoutes
-                NavigationBar {
-                    topLevelRoutes.forEach { route ->
-                        NavigationBarItem(
-                            icon = { Icon(route.icon, route.name) },
-                            label = { Text(route.name) },
-                            selected = currentDestination?.hierarchy?.any {
-                                it.hasRoute(
-                                    route.route::class
-                                )
-                            } == true,
-                            onClick = {
-                                navController.navigate(route.route) {
-                                    RetrofitInstance.api.getUser();
-                                    // Pop up to the start destination of the graph to
-                                    // avoid building up a large stack of destinations
-                                    // on the back stack as users select items
-                                    popUpTo(navController.graph.findStartDestination().id) {
-                                        saveState = true
+                val hideNavigationBar = hideNavBarRoutes.any {
+                    currentDestination?.hasRoute(it.route::class) == true
+                }
+                if (hideNavigationBar.not()) {
+                    NavigationBar {
+                        topLevelRoutes.forEach { route ->
+                            NavigationBarItem(
+                                icon = { Icon(route.icon, route.name) },
+                                label = { Text(route.name) },
+                                selected = currentDestination?.hierarchy?.any {
+                                    it.hasRoute(
+                                        route.route::class
+                                    )
+                                } == true,
+                                onClick = {
+                                    navController.navigate(route.route) {
+//                                    RetrofitInstance.api.getUser();
+                                        // Pop up to the start destination of the graph to
+                                        // avoid building up a large stack of destinations
+                                        // on the back stack as users select items
+                                        popUpTo(navController.graph.findStartDestination().id) {
+                                            saveState = true
+                                        }
+                                        // Avoid multiple copies of the same destination when
+                                        // reselecting the same item
+                                        launchSingleTop = true
+                                        // Restore state when reselecting a previously selected item
+                                        restoreState = true
                                     }
-                                    // Avoid multiple copies of the same destination when
-                                    // reselecting the same item
-                                    launchSingleTop = true
-                                    // Restore state when reselecting a previously selected item
-                                    restoreState = true
                                 }
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -119,7 +125,8 @@ fun Navigation() {
                 composable<Login> {
                     LoginScreen(
                         onNavigateToRegister = { navController.navigate(route = Register) },
-                        onNavigateToHome = { navController.navigate(route = Home) }
+                        onNavigateToHome = { navController.navigate(route = Home) },
+                        snackbarHostState = snackbarHostState
                     )
                 }
                 composable<Register> {
@@ -147,7 +154,7 @@ fun Navigation() {
 
                 composable<EditProfile> {
                     EditProfileScreen(
-                        onSaveProfile = { username, email ->
+                        onSaveProfile = {
                             navController.navigate(
                                 route = Profile
                             )

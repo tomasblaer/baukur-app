@@ -10,13 +10,25 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.baukur.api.entities.Category
+import com.example.baukur.api.entities.CreateUserPayload
+import com.example.baukur.api.network.RetrofitInstance
+import kotlinx.coroutines.launch
 
 @Composable
 fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> Unit) {
+    var email by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        val res = RetrofitInstance.api.getUser()
+        res.body()?.let {
+            email = it.email
+        }
+    }
     Box(
         modifier = Modifier
-            .fillMaxSize(),
-        contentAlignment = Alignment.Center
+            .fillMaxSize()
+            .padding(16.dp),
+        contentAlignment = Alignment.Center,
     ) {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
@@ -26,8 +38,7 @@ fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> 
                 .padding(16.dp)
         ) {
             Spacer(modifier = Modifier.height(16.dp))
-            ProfileInfo(label = "Username", value = "JohnDoe")
-            ProfileInfo(label = "Email", value = "johndoe@example.com")
+            ProfileInfo(label = "Email", value = email)
             Spacer(modifier = Modifier.height(24.dp))
             Button(
                 onClick = onNavigateToLogin,
@@ -63,9 +74,16 @@ fun ProfileInfo(label: String, value: String) {
 }
 
 @Composable
-fun EditProfileScreen(onSaveProfile: (String, String) -> Unit, onCancel: () -> Unit) {
-    var username by remember { mutableStateOf("JohnDoe") }
-    var email by remember { mutableStateOf("johndoe@example.com") }
+fun EditProfileScreen(onSaveProfile: () -> Unit, onCancel: () -> Unit) {
+    val composableScope = rememberCoroutineScope()
+    var email by remember { mutableStateOf("") }
+    var newPassword by remember { mutableStateOf("") }
+    LaunchedEffect(Unit) {
+        val res = RetrofitInstance.api.getUser()
+        res.body()?.let {
+            email = it.email
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -84,22 +102,27 @@ fun EditProfileScreen(onSaveProfile: (String, String) -> Unit, onCancel: () -> U
             Spacer(modifier = Modifier.height(16.dp))
 
             TextField(
-                value = username,
-                onValueChange = { username = it },
-                label = { Text("Username") }
+                value = email,
+                onValueChange = { email = it },
+                label = { Text("Email") }
             )
             Spacer(modifier = Modifier.height(8.dp))
 
             TextField(
-                value = email,
-                onValueChange = { email = it },
-                label = { Text("Email") }
+                value = newPassword,
+                onValueChange = { newPassword = it },
+                label = { Text("Change password") }
             )
             Spacer(modifier = Modifier.height(24.dp))
 
             Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(
-                    onClick = { onSaveProfile(username, email) },
+                    onClick = {
+                        composableScope.launch {
+                            RetrofitInstance.api.updateUser(CreateUserPayload(email, newPassword))
+                        }
+                        onSaveProfile()
+                    },
                     colors = ButtonDefaults.buttonColors(
                         containerColor = Color(0xFFFF4081),
                         contentColor = Color.White
@@ -135,7 +158,7 @@ fun ProfilePreview() {
 @Composable
 fun EditProfilePreview() {
     EditProfileScreen(
-        onSaveProfile = { _, _ ->},
+        onSaveProfile = {},
         onCancel = {}
     )
 }

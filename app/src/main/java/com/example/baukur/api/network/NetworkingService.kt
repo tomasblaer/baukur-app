@@ -2,6 +2,7 @@ package com.example.baukur.api.network
 
 import com.example.baukur.api.entities.Category
 import com.example.baukur.api.entities.CreateDefaultCategoriesPayload
+import com.example.baukur.api.entities.CreateExpensePayload
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.entities.DefaultCategory
 import com.example.baukur.api.entities.User
@@ -31,4 +32,8 @@ interface NetworkingService {
      suspend fun getDefaultCategories(): Response<List<DefaultCategory>>
      @POST("/categories/default")
      suspend fun createDefaultCategories(@Body payload: CreateDefaultCategoriesPayload): Response<List<Category>>
+     @GET("/categories")
+     suspend fun getCategories(): Response<List<Category>>
+     @POST("/expenses")
+     suspend fun createExpense(@Body payload: CreateExpensePayload): Response<Unit>
 }

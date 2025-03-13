@@ -1,5 +1,6 @@
 package com.example.baukur.ui.screens
 
+import android.app.Activity
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -37,12 +38,13 @@ import com.example.baukur.api.entities.CreateDefaultCategoriesPayload
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.entities.DefaultCategory
 import com.example.baukur.api.network.RetrofitInstance
+import kotlinx.coroutines.CoroutineScope
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.launch
 
 @Composable
 fun RegisterScreen(onNavigateToLogin: () -> Unit, snackbarHostState: SnackbarHostState) {
-    var email by remember { mutableStateOf("") }
-    var password by remember { mutableStateOf("") }
 
     Box(
         modifier = Modifier
@@ -70,10 +72,9 @@ fun RegisterScreen(onNavigateToLogin: () -> Unit, snackbarHostState: SnackbarHos
 fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> Unit) {
     var email by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
-    var expanded by remember { mutableStateOf(false) }
     var defaultCategoryOptions by remember { mutableStateOf(emptyList<DefaultCategory>()) }
     var selectedDefaultCategoryIds by remember { mutableStateOf(emptyList<Long>()) }
-    val composableScope = rememberCoroutineScope();
+    val composableScope = rememberCoroutineScope()
     LaunchedEffect(Unit) {
         val res = RetrofitInstance.api.getDefaultCategories()
         res.body()?.let {
@@ -93,6 +94,13 @@ fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> 
     )
     Spacer(modifier = Modifier.height(8.dp))
 
+    Row {
+        Text(
+            text = "Select default categories:",
+            fontWeight = androidx.compose.ui.text.font.FontWeight.Bold,
+            modifier = Modifier.weight(1f),
+        )
+    }
     for (category in defaultCategoryOptions) {
         Row {
             Text(
@@ -116,7 +124,7 @@ fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> 
     Button(
         onClick = {
             try {
-                composableScope.launch {
+                CoroutineScope(Dispatchers.Main).launch {
                     // create user
                     val res = RetrofitInstance.api.createUser(CreateUserPayload(email, password))
                     // pass userid to create default categories for user
@@ -136,6 +144,7 @@ fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> 
                         }
                         SnackbarResult.Dismissed -> {}
                     }
+
                 }
             } catch (e: Exception) {
                 composableScope.launch {

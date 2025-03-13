@@ -135,7 +135,8 @@ fun Navigation() {
                             route = Login
                         )
                     },
-                    snackbarHostState = snackbarHostState)
+                    snackbarHostState = snackbarHostState
+                    )
                 }
                 composable<Profile> {
                     ProfileScreen(
@@ -169,7 +170,9 @@ fun Navigation() {
 
 
                 composable<Home> { HomeScreen() }
-                composable<AddExpense> { AddExpenseScreen() }
+                composable<AddExpense> { AddExpenseScreen(
+                    snackbarHostState = snackbarHostState
+                ) }
             }
         }
     }

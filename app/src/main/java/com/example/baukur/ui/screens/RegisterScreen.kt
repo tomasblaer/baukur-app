@@ -128,11 +128,13 @@ fun RegisterForm(snackbarHostState: SnackbarHostState, onNavigateToLogin: () -> 
                     // create user
                     val res = RetrofitInstance.api.createUser(CreateUserPayload(email, password))
                     // pass userid to create default categories for user
-                    RetrofitInstance.api.createDefaultCategories(
-                        CreateDefaultCategoriesPayload(
-                        selectedDefaultCategoryIds,
-                        res.body()!!.id.toLong())
-                    )
+                    if (selectedDefaultCategoryIds.isNotEmpty()) {
+                        RetrofitInstance.api.createDefaultCategories(
+                            CreateDefaultCategoriesPayload(
+                                selectedDefaultCategoryIds,
+                                res.body()!!.id.toLong())
+                        )
+                    }
                     val result = snackbarHostState.showSnackbar(
                         message = "User created",
                         actionLabel = "Login",

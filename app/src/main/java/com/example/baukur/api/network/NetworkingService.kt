@@ -1,6 +1,7 @@
 package com.example.baukur.api.network
 
 import com.example.baukur.api.entities.Category
+import com.example.baukur.api.entities.CreateCategoryPayload
 import com.example.baukur.api.entities.CreateDefaultCategoriesPayload
 import com.example.baukur.api.entities.CreateExpensePayload
 import com.example.baukur.api.entities.CreateUserPayload
@@ -24,18 +25,23 @@ interface NetworkingService {
           @Part("username") username: RequestBody,
           @Part("password") password: RequestBody
      ): Response<Unit>
+     @POST("/logout")
+     suspend fun logout(): Response<Unit>
      @GET("/user")
      suspend fun getUser(): Response<User>
      @PUT("/user")
      suspend fun updateUser(@Body payload: CreateUserPayload): Response<Unit>
      @GET("/categories/default")
+
      suspend fun getDefaultCategories(): Response<List<DefaultCategory>>
      @POST("/categories/default")
      suspend fun createDefaultCategories(@Body payload: CreateDefaultCategoriesPayload): Response<List<Category>>
      @GET("/categories")
      suspend fun getCategories(): Response<List<Category>>
+     @POST("/categories")
+     suspend fun createCategory(@Body payload: CreateCategoryPayload): Response<Category>
+
      @POST("/expenses")
      suspend fun createExpense(@Body payload: CreateExpensePayload): Response<Unit>
-     @POST("/logout")
-     suspend fun logout(): Response<Unit>
+
 }

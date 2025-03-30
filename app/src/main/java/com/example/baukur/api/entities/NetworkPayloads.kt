@@ -17,3 +17,8 @@ data class CreateExpensePayload(
     val date: String,
     val categoryId: Int,
 )
+
+data class CreateCategoryPayload(
+    val name: String,
+    val description: String,
+)

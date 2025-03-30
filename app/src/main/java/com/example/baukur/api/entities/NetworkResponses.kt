@@ -10,6 +10,16 @@ data class DefaultCategory(
     val name: String,
 )
 
+data class Expense(
+    val id: Int,
+    val name: String,
+    val comment: String,
+    val amount: Double,
+    val date: String,
+    val categoryId: Int,
+    val userId: Int,
+)
+
 data class Category(
     val id: Int,
     val name: String,
@@ -18,4 +28,5 @@ data class Category(
     val iconId: Int,
     val userId: Int,
     val defaultCategoryId: Int,
+    val expenses: List<Expense>,
 )

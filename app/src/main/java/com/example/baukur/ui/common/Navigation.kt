@@ -209,7 +209,12 @@ fun Navigation() {
 
                 composable<Home> { HomeScreen() }
                 composable<AddCategory> {
-                    AddCategoryScreen()
+                    AddCategoryScreen(
+                        snackbarHostState = snackbarHostState,
+                        onNavigateToCreateExpense = {
+                            navController.navigate(route = AddExpense)
+                        }
+                    )
                 }
                 composable<AddExpense> {
                     AddExpenseScreen(

@@ -14,10 +14,13 @@ import com.example.baukur.api.entities.Category
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.network.RetrofitInstance
 import kotlinx.coroutines.launch
+import retrofit2.Retrofit
 
 @Composable
 fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> Unit) {
     var email by remember { mutableStateOf("") }
+    val composableScope = rememberCoroutineScope()
+
     LaunchedEffect(Unit) {
         val res = RetrofitInstance.api.getUser()
         res.body()?.let {
@@ -41,7 +44,12 @@ fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> 
             ProfileInfo(label = "Email", value = email)
             Spacer(modifier = Modifier.height(24.dp))
             Button(
-                onClick = onNavigateToLogin,
+                onClick = {
+                    composableScope.launch {
+                        RetrofitInstance.api.logout()
+                    }
+                    onNavigateToLogin()
+                },
                 colors = ButtonDefaults.buttonColors(
                     containerColor = Color(0xFFFF4081),
                     contentColor = Color.White
@@ -120,6 +128,7 @@ fun EditProfileScreen(onSaveProfile: () -> Unit, onCancel: () -> Unit) {
                     onClick = {
                         composableScope.launch {
                             RetrofitInstance.api.updateUser(CreateUserPayload(email, newPassword))
+                            RetrofitInstance.api.logout()
                         }
                         onSaveProfile()
                     },

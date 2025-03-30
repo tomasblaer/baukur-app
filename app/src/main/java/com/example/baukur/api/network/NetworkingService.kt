@@ -27,7 +27,7 @@ interface NetworkingService {
      @GET("/user")
      suspend fun getUser(): Response<User>
      @PUT("/user")
-     suspend fun updateUser(@Body payload: CreateUserPayload): Response<User>
+     suspend fun updateUser(@Body payload: CreateUserPayload): Response<Unit>
      @GET("/categories/default")
      suspend fun getDefaultCategories(): Response<List<DefaultCategory>>
      @POST("/categories/default")
@@ -36,4 +36,6 @@ interface NetworkingService {
      suspend fun getCategories(): Response<List<Category>>
      @POST("/expenses")
      suspend fun createExpense(@Body payload: CreateExpensePayload): Response<Unit>
+     @POST("/logout")
+     suspend fun logout(): Response<Unit>
 }

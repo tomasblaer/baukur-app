@@ -3,16 +3,23 @@ package com.example.baukur.ui.common
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -31,6 +38,7 @@ import com.example.baukur.ui.screens.HomeScreen
 import com.example.baukur.ui.screens.LoginScreen
 import com.example.baukur.ui.screens.ProfileScreen
 import com.example.baukur.ui.screens.RegisterScreen
+import com.example.baukur.ui.screens.categories.AddCategoryScreen
 import com.example.baukur.ui.screens.expenses.AddExpenseScreen
 import com.example.baukur.ui.theme.BaukurTheme
 import kotlinx.serialization.Serializable
@@ -47,6 +55,8 @@ object Home
 object AddExpense
 @Serializable
 object EditProfile
+@Serializable
+object AddCategory
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 
@@ -57,8 +67,13 @@ val topLevelRoutes = listOf(
 )
 
 val hideNavBarRoutes = listOf(
-    TopLevelRoute("Login", Login, Icons.Default.Person),
-    TopLevelRoute("Register", Register, Icons.Default.Person),
+    Login,
+    Register,
+)
+
+val nestedRoutes = listOf(
+    EditProfile,
+    AddCategory,
 )
 
 /*
@@ -66,6 +81,7 @@ Essentially the entry-point for the app,
 enforces an always-present scaffold and (sometimes present) navigation bar
  */
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun Navigation() {
     val navController = rememberNavController()
@@ -78,11 +94,37 @@ fun Navigation() {
             snackbarHost = {
                 SnackbarHost(hostState = snackbarHostState)
             },
+            topBar = {
+                val navBackStackEntry by navController.currentBackStackEntryAsState()
+                val currentDestination = navBackStackEntry?.destination
+                val showBackArrow = nestedRoutes.any {
+                    currentDestination?.hasRoute(it::class) == true
+                }
+                if (showBackArrow) {
+                    TopAppBar(
+                        navigationIcon = {
+                            IconButton(
+                                content = {
+                                    Icon(
+                                        imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                                        contentDescription = "Back"
+                                    )
+                                },
+                                onClick = { navController.popBackStack() }
+                            )
+                        },
+                        colors = TopAppBarDefaults.topAppBarColors(
+                            containerColor = Color(0xFFFAF3F3),
+                        ),
+                        title = { }
+                    )
+                }
+            },
             bottomBar = {
                 val navBackStackEntry by navController.currentBackStackEntryAsState()
                 val currentDestination = navBackStackEntry?.destination
                 val hideNavigationBar = hideNavBarRoutes.any {
-                    currentDestination?.hasRoute(it.route::class) == true
+                    currentDestination?.hasRoute(it::class) == true
                 }
                 if (hideNavigationBar.not()) {
                     NavigationBar {
@@ -97,10 +139,6 @@ fun Navigation() {
                                 } == true,
                                 onClick = {
                                     navController.navigate(route.route) {
-//                                    RetrofitInstance.api.getUser();
-                                        // Pop up to the start destination of the graph to
-                                        // avoid building up a large stack of destinations
-                                        // on the back stack as users select items
                                         popUpTo(navController.graph.findStartDestination().id) {
                                             saveState = true
                                         }
@@ -157,7 +195,7 @@ fun Navigation() {
                     EditProfileScreen(
                         onSaveProfile = {
                             navController.navigate(
-                                route = Profile
+                                route = Login
                             )
                         },
                         onCancel = {
@@ -170,9 +208,17 @@ fun Navigation() {
 
 
                 composable<Home> { HomeScreen() }
-                composable<AddExpense> { AddExpenseScreen(
-                    snackbarHostState = snackbarHostState
-                ) }
+                composable<AddCategory> {
+                    AddCategoryScreen()
+                }
+                composable<AddExpense> {
+                    AddExpenseScreen(
+                        snackbarHostState = snackbarHostState,
+                        navigateToNewCategory = {
+                            navController.navigate(route = AddCategory)
+                        }
+                    )
+                }
             }
         }
     }

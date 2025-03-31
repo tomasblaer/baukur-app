@@ -43,6 +43,7 @@ android {
 
 dependencies {
     implementation("com.github.PhilJay:MPAndroidChart:v3.1.0")
+    implementation("androidx.compose.material:material-icons-extended:1.5.4")
     implementation(libs.kotlinx.serialization.json)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.androidx.core.ktx)

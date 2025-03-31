@@ -44,6 +44,7 @@ import com.example.baukur.ui.screens.categories.AddCategoryScreen
 import com.example.baukur.ui.screens.expenses.AddExpenseScreen
 import com.example.baukur.ui.theme.BaukurTheme
 import kotlinx.serialization.Serializable
+import androidx.compose.material.icons.rounded.PieChart
 
 @Serializable
 object Login
@@ -68,7 +69,7 @@ val topLevelRoutes = listOf(
     TopLevelRoute("Home", Home, Icons.Default.Home),
     TopLevelRoute("Expenses", AddExpense, Icons.Default.AddCircle),
     TopLevelRoute("Profile", Profile, Icons.Default.Person),
-    TopLevelRoute("Stats", Stats, Icons.Default.Star )
+    TopLevelRoute("Stats", Stats, Icons.Rounded.PieChart )
 )
 
 val hideNavBarRoutes = listOf(

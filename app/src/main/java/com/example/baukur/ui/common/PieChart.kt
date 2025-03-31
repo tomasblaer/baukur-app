@@ -11,6 +11,7 @@ import com.github.mikephil.charting.data.PieEntry
 import android.graphics.Color
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.remember
 import com.example.baukur.api.entities.Category
 import com.example.baukur.api.network.RetrofitInstance
@@ -20,22 +21,18 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun PieChartComposable() {
-    var categories by remember { mutableStateOf(emptyList<Category>()) }
+    var categories = remember { mutableStateListOf<Category>() }
 
     LaunchedEffect(Unit) {
-        try {
-            val res = RetrofitInstance.api.getCategories()
-            res.body()?.let {
-                categories = it
-            }
-        } catch (e: Exception) {
-            e.printStackTrace()
-        }
+        fetchCategories(categories)
     }
-    val pieEntries = categories.map {
-        val amount = it.expenses.sumOf { expense -> expense.amount }
-        PieEntry(amount.toFloat(), it.name)
+
+    val pieEntries = categories.map { category ->
+        val amount = category.expenses.sumOf { it.amount }
+        return PieEntry(amount.toFloat(), category.name)
     }
+    println(pieEntries)
+    println(categories)
 
 
     AndroidView(
@@ -64,4 +61,16 @@ fun PieChartComposable() {
             }
         }
     )
+}
+
+suspend fun fetchCategories(categories: MutableList<Category>) {
+    try {
+        val res = RetrofitInstance.api.getCategories()
+        res.body()?.let {
+            categories.clear()
+            categories.addAll(it)  // Update the state list to trigger recomposition
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
 }

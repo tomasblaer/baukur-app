@@ -45,7 +45,4 @@ interface NetworkingService {
      @POST("/expenses")
      suspend fun createExpense(@Body payload: CreateExpensePayload): Response<Unit>
 
-     @DELETE("/expenses")
-     suspend fun deleteExpense(@Body )
-
 }

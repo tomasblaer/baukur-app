@@ -7,7 +7,6 @@ import androidx.activity.enableEdgeToEdge
 import com.example.baukur.ui.common.Navigation
 
 class MainActivity : ComponentActivity() {
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()

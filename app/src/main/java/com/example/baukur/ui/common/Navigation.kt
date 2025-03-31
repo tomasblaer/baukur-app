@@ -8,6 +8,7 @@ import androidx.compose.material.icons.filled.AddCircle
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Star
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -38,6 +39,7 @@ import com.example.baukur.ui.screens.HomeScreen
 import com.example.baukur.ui.screens.LoginScreen
 import com.example.baukur.ui.screens.ProfileScreen
 import com.example.baukur.ui.screens.RegisterScreen
+import com.example.baukur.ui.screens.StatScreen
 import com.example.baukur.ui.screens.categories.AddCategoryScreen
 import com.example.baukur.ui.screens.expenses.AddExpenseScreen
 import com.example.baukur.ui.theme.BaukurTheme
@@ -57,6 +59,8 @@ object AddExpense
 object EditProfile
 @Serializable
 object AddCategory
+@Serializable
+object Stats
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 
@@ -64,6 +68,7 @@ val topLevelRoutes = listOf(
     TopLevelRoute("Home", Home, Icons.Default.Home),
     TopLevelRoute("Expenses", AddExpense, Icons.Default.AddCircle),
     TopLevelRoute("Profile", Profile, Icons.Default.Person),
+    TopLevelRoute("Stats", Stats, Icons.Default.Star )
 )
 
 val hideNavBarRoutes = listOf(
@@ -224,6 +229,8 @@ fun Navigation() {
                         }
                     )
                 }
+
+                composable<Stats> { StatScreen() }
             }
         }
     }

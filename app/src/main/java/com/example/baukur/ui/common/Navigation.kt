@@ -192,6 +192,11 @@ fun Navigation() {
                             navController.navigate(
                                 route = EditProfile
                             )
+                        },
+                        onNavigateToProfile = {
+                            navController.navigate(
+                                route = Profile
+                            )
                         }
                     )
                 }

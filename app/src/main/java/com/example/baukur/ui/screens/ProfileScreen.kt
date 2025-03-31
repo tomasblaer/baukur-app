@@ -1,5 +1,6 @@
 package com.example.baukur.ui.screens
 
+import com.example.baukur.data.UserDBHelper
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
@@ -7,18 +8,20 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.baukur.api.entities.Category
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.network.RetrofitInstance
 import kotlinx.coroutines.launch
-import retrofit2.Retrofit
 
 @Composable
-fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> Unit) {
+fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> Unit, onNavigateToProfile: () -> Unit) {
+    val context = LocalContext.current
     var email by remember { mutableStateOf("") }
+    var newSpendingLimit by remember { mutableStateOf("") }
+    val dbHelper = UserDBHelper(context)
     val composableScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
@@ -42,7 +45,29 @@ fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> 
         ) {
             Spacer(modifier = Modifier.height(16.dp))
             ProfileInfo(label = "Email", value = email)
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(10.dp))
+            ProfileInfo(label="Monthly spending limit", value = dbHelper.getUserSpending(email).toString())
+            TextField(
+                value = newSpendingLimit,
+                onValueChange = { newSpendingLimit = it },
+                label = { Text("Update spending limit") }
+            )
+            Spacer(modifier = Modifier.height(10.dp))
+            Button(
+                onClick = {
+                    composableScope.launch {
+                        dbHelper.insertOrUpdateUserData(email, newSpendingLimit.toInt())
+                    }
+                    onNavigateToProfile()
+                },
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = Color(0xFFFF4081),
+                    contentColor = Color.White
+                )
+            ) {
+                Text("Update Spending Limit")
+            }
+            Spacer(modifier = Modifier.height(5.dp))
             Button(
                 onClick = {
                     composableScope.launch {
@@ -57,7 +82,7 @@ fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> 
             ) {
                 Text("Logout")
             }
-            Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(5.dp))
             Button(
                 onClick = onNavigateToEditProfile,
                 colors = ButtonDefaults.buttonColors(
@@ -70,6 +95,7 @@ fun ProfileScreen(onNavigateToLogin: () -> Unit, onNavigateToEditProfile: () -> 
         }
     }
 }
+
 
 @Composable
 fun ProfileInfo(label: String, value: String) {
@@ -86,6 +112,7 @@ fun EditProfileScreen(onSaveProfile: () -> Unit, onCancel: () -> Unit) {
     val composableScope = rememberCoroutineScope()
     var email by remember { mutableStateOf("") }
     var newPassword by remember { mutableStateOf("") }
+
     LaunchedEffect(Unit) {
         val res = RetrofitInstance.api.getUser()
         res.body()?.let {
@@ -123,6 +150,7 @@ fun EditProfileScreen(onSaveProfile: () -> Unit, onCancel: () -> Unit) {
             )
             Spacer(modifier = Modifier.height(24.dp))
 
+
             Row(horizontalArrangement = Arrangement.SpaceEvenly) {
                 Button(
                     onClick = {
@@ -153,13 +181,13 @@ fun EditProfileScreen(onSaveProfile: () -> Unit, onCancel: () -> Unit) {
         }
     }
 }
-
 @Preview(showBackground = true)
 @Composable
 fun ProfilePreview() {
     ProfileScreen(
         onNavigateToLogin = {},
-        onNavigateToEditProfile = {}
+        onNavigateToEditProfile = {},
+        onNavigateToProfile = {}
     )
 }
 

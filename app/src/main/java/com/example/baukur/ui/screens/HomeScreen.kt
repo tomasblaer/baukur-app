@@ -9,12 +9,15 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Divider
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -25,11 +28,13 @@ import androidx.compose.ui.unit.sp
 import com.example.baukur.api.entities.Category
 import com.example.baukur.api.entities.Expense
 import com.example.baukur.api.network.RetrofitInstance
+import kotlinx.coroutines.launch
 
 
 @Composable
-fun HomeScreen() {
+fun HomeScreen(snackbarHostState: SnackbarHostState) {
     var categories by remember { mutableStateOf(emptyList<Category>()) }
+    var composableScope = rememberCoroutineScope()
 
     LaunchedEffect(Unit) {
         try {
@@ -74,8 +79,21 @@ fun HomeScreen() {
                         // TODO: Open edit dialog or navigate
                     },
                     onDelete = {
-                        println("Delete: ${expense.name}")
-                        // TODO: Handle deletion logic here
+                        composableScope.launch {
+                            RetrofitInstance.api.deleteExpense(expense.id)
+                            snackbarHostState.showSnackbar(
+                                message = "Deleted expense: ${expense.name}",
+                                duration = SnackbarDuration.Short
+                            )
+                            try {
+                                val res = RetrofitInstance.api.getCategories()
+                                res.body()?.let {
+                                    categories = it
+                                }
+                            } catch (e: Exception) {
+                                e.printStackTrace()
+                            }
+                        }
                     }
                 )
             }

@@ -21,18 +21,18 @@ import androidx.compose.runtime.setValue
 
 @Composable
 fun PieChartComposable() {
-    var categories = remember { mutableStateListOf<Category>() }
+    val categories = remember { mutableStateListOf<Category>() }
+    val pieEntries = remember { mutableStateListOf<PieEntry>() }
 
     LaunchedEffect(Unit) {
         fetchCategories(categories)
+        categories.forEach { category ->
+            val amount = category.expenses.sumOf { it.amount }
+            pieEntries.add(PieEntry(amount.toFloat(), category.name))
+        }
     }
 
-    val pieEntries = categories.map { category ->
-        val amount = category.expenses.sumOf { it.amount }
-        return PieEntry(amount.toFloat(), category.name)
-    }
     println(pieEntries)
-    println(categories)
 
 
     AndroidView(

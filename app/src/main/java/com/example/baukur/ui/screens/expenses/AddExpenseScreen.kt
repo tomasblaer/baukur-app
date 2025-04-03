@@ -1,5 +1,6 @@
 package com.example.baukur.ui.screens.expenses
 
+import EditCategoryDialog
 import android.R
 import androidx.compose.foundation.gestures.awaitEachGesture
 import androidx.compose.foundation.gestures.awaitFirstDown
@@ -20,6 +21,7 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
@@ -43,6 +45,8 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.baukur.api.entities.Category
 import com.example.baukur.api.entities.CreateExpensePayload
+import com.example.baukur.api.entities.EditCategoryPayload
+import com.example.baukur.api.entities.EditExpensePayload
 import com.example.baukur.api.network.RetrofitInstance
 import com.example.baukur.data.UserDBHelper
 import com.example.baukur.ui.common.DatePickerFieldToModal
@@ -53,12 +57,13 @@ import java.util.Date
 import java.util.Locale
 
 @Composable
-fun AddExpenseScreen(snackbarHostState: SnackbarHostState, navigateToNewCategory: () -> Unit, navigateToEditCategory: () -> Unit) {
+fun AddExpenseScreen(snackbarHostState: SnackbarHostState, navigateToNewCategory: () -> Unit) {
     var userCategories by remember { mutableStateOf(emptyList<Category>()) }
     var expenseName by remember { mutableStateOf("") }
     var expenseComment by remember { mutableStateOf("") }
     var expenseAmount by remember { mutableLongStateOf(0) }
     var selectedCategory by remember { mutableStateOf<Category?>(null) }
+    var showEditDialog by remember { mutableStateOf(false) }
     val context = LocalContext.current
     val dbHelper = UserDBHelper(context)
     var spendingLimit by remember { mutableIntStateOf(0) }
@@ -115,7 +120,7 @@ fun AddExpenseScreen(snackbarHostState: SnackbarHostState, navigateToNewCategory
                 onCategorySelected = { selectedCategory = it },
                 categoryOptions = userCategories,
                 onNewCategory = { navigateToNewCategory() },
-                onEditCategory = { navigateToEditCategory() }
+                onOpenEditDialog = { showEditDialog = true }
             )
 
             Button(
@@ -160,7 +165,40 @@ fun AddExpenseScreen(snackbarHostState: SnackbarHostState, navigateToNewCategory
                 )
             }
         }
-
+    }
+    if (showEditDialog && selectedCategory != null) {
+        EditCategoryDialog (
+            category = selectedCategory!!,
+            onDismiss = { showEditDialog = false },
+            onSave = { updatedCategory ->
+                composableScope.launch {
+                    RetrofitInstance.api.editCategory(
+                        EditCategoryPayload(
+                            updatedCategory.id,
+                            updatedCategory.name,
+                            updatedCategory.description,
+                            updatedCategory.hidden,
+                            updatedCategory.iconId,
+                            updatedCategory.userId,
+                            updatedCategory.defaultCategoryId
+                        )
+                    )
+                    snackbarHostState.showSnackbar(
+                        message = "Edited category: ${updatedCategory.name}",
+                        duration = SnackbarDuration.Short
+                    )
+                    showEditDialog = false
+                    try {
+                        val res = RetrofitInstance.api.getCategories()
+                        res.body()?.let {
+                            userCategories = it
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        )
     }
 }
 
@@ -169,8 +207,8 @@ fun CategoryPicker(
         selectedCategory: Category?,
         onCategorySelected: (Category) -> Unit,
         categoryOptions: List<Category>,
-        onEditCategory: () -> Unit,
-        onNewCategory: () -> Unit
+        onNewCategory: () -> Unit,
+        onOpenEditDialog: () -> Unit
     ) {
     var showCategoryMenu by remember { mutableStateOf(false) }
     Box {
@@ -196,7 +234,7 @@ fun CategoryPicker(
                                 )
                             },
                             onClick = {
-                                onEditCategory()
+                                onOpenEditDialog()
                             }
                         )
                     }

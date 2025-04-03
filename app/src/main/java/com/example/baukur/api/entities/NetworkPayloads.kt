@@ -31,3 +31,13 @@ data class CreateCategoryPayload(
     val name: String,
     val description: String,
 )
+
+data class EditCategoryPayload(
+    val id: Int,
+    val name: String,
+    val description: String,
+    val hidden: Boolean,
+    val iconId: Int,
+    val userId: Int,
+    val defaultCategoryId: Int,
+)

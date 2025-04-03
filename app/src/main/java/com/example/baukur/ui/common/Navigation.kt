@@ -41,7 +41,6 @@ import com.example.baukur.ui.screens.ProfileScreen
 import com.example.baukur.ui.screens.RegisterScreen
 import com.example.baukur.ui.screens.StatScreen
 import com.example.baukur.ui.screens.categories.AddCategoryScreen
-import com.example.baukur.ui.screens.categories.EditCategoryScreen
 import com.example.baukur.ui.screens.expenses.AddExpenseScreen
 import com.example.baukur.ui.theme.BaukurTheme
 import kotlinx.serialization.Serializable
@@ -63,8 +62,6 @@ object EditProfile
 object AddCategory
 @Serializable
 object Stats
-@Serializable
-object EditCategory
 
 data class TopLevelRoute<T : Any>(val name: String, val route: T, val icon: ImageVector)
 
@@ -220,15 +217,6 @@ fun Navigation() {
                     )
                 }
 
-                composable<EditCategory> {
-                    EditCategoryScreen(
-                        snackbarHostState = snackbarHostState,
-                        onNavigateToCreateExpense = {
-                            navController.navigate(route = AddExpense)
-                        }
-                    )
-                }
-
 
                 composable<Home> { HomeScreen(snackbarHostState = snackbarHostState) }
                 composable<AddCategory> {
@@ -244,9 +232,6 @@ fun Navigation() {
                         snackbarHostState = snackbarHostState,
                         navigateToNewCategory = {
                             navController.navigate(route = AddCategory)
-                        },
-                        navigateToEditCategory = {
-                            navController.navigate(route = EditCategory)
                         }
                     )
                 }

@@ -8,10 +8,10 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.baukur.api.network.RetrofitInstance
-import com.example.baukur.ui.theme.BaukurTheme
 import kotlinx.coroutines.launch
 import okhttp3.MediaType
 import okhttp3.RequestBody
@@ -47,6 +47,7 @@ fun LoginScreen(onNavigateToRegister: () -> Unit, onNavigateToHome: () -> Unit, 
             TextField(
                 value = password,
                 onValueChange = { password = it },
+                visualTransformation = PasswordVisualTransformation(),
                 label = { Text("Password") },
             )
             Spacer(modifier = Modifier.height(16.dp))

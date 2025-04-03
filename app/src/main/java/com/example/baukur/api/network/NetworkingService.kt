@@ -6,6 +6,7 @@ import com.example.baukur.api.entities.CreateDefaultCategoriesPayload
 import com.example.baukur.api.entities.CreateExpensePayload
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.entities.DefaultCategory
+import com.example.baukur.api.entities.EditCategoryPayload
 import com.example.baukur.api.entities.EditExpensePayload
 import com.example.baukur.api.entities.Expense
 import com.example.baukur.api.entities.User
@@ -54,4 +55,7 @@ interface NetworkingService {
 
      @PATCH("/expenses")
      suspend fun editExpense(@Body payload: EditExpensePayload) : Response<Expense>
+
+     @PATCH("/categories")
+     suspend fun editCategory(@Body payload: EditCategoryPayload): Response<Category>
 }

@@ -37,6 +37,7 @@ import com.example.baukur.api.entities.CreateExpensePayload
 import com.example.baukur.api.entities.EditExpensePayload
 import com.example.baukur.api.entities.Expense
 import com.example.baukur.api.network.RetrofitInstance
+import com.example.baukur.ui.screens.expenses.EditExpenseDialog
 import kotlinx.coroutines.launch
 import kotlin.math.roundToInt
 
@@ -193,60 +194,6 @@ fun SwipeableExpenseItem(
             Text(text = "📅 Date: ${expense.date}")
         }
     }
-}
-
-@Composable
-fun EditExpenseDialog(
-    expense: Expense,
-    onDismiss: () -> Unit,
-    onSave: (Expense) -> Unit
-) {
-    var name by remember { mutableStateOf(expense.name) }
-    var amount by remember { mutableStateOf(expense.amount) }
-    var comment by remember { mutableStateOf(expense.comment) }
-    var date by remember { mutableStateOf(expense.date) }
-
-    AlertDialog(
-        onDismissRequest = onDismiss,
-        title = { Text("Edit Expense") },
-        text = {
-            Column {
-                TextField(
-                    value = name,
-                    onValueChange = { name = it },
-                    label = { Text("Name") }
-                )
-                TextField(
-                    value = amount.toString(),
-                    onValueChange = { amount = it.toDoubleOrNull() ?: amount },
-                    label = { Text("Amount") },
-                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                )
-                TextField(
-                    value = comment,
-                    onValueChange = { comment = it },
-                    label = { Text("Comment") }
-                )
-                TextField(
-                    value = date,
-                    onValueChange = { date = it },
-                    label = { Text("Date") }
-                )
-            }
-        },
-        confirmButton = {
-            Button(onClick = {
-                onSave(expense.copy(name = name, amount = amount, comment = comment, date = date))
-            }) {
-                Text("Save")
-            }
-        },
-        dismissButton = {
-            Button(onClick = onDismiss) {
-                Text("Cancel")
-            }
-        }
-    )
 }
 
 

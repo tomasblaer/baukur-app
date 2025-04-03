@@ -55,6 +55,11 @@ fun HomeScreen(snackbarHostState: SnackbarHostState) {
 
 
     val expensesByDate = allExpenses.groupBy { (expense, _) -> expense.date }
+        .mapValues { (_, expenses) ->
+            expenses.sortedByDescending { (expense, _) -> expense.date }
+        }
+        .toList()
+        .sortedByDescending { (date, _) -> date }
 
 
     LazyColumn(modifier = Modifier.padding(16.dp)) {

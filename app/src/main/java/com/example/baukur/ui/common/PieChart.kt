@@ -8,7 +8,6 @@ import com.github.mikephil.charting.components.Legend
 import com.github.mikephil.charting.data.PieData
 import com.github.mikephil.charting.data.PieDataSet
 import com.github.mikephil.charting.data.PieEntry
-import android.graphics.Color
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
@@ -17,6 +16,7 @@ import com.example.baukur.api.entities.Category
 import com.example.baukur.api.network.RetrofitInstance
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import android.graphics.Color
 
 
 @Composable
@@ -38,11 +38,10 @@ fun PieChartComposable() {
             factory = { context ->
                 PieChart(context).apply {
                     val dataSet = PieDataSet(pieEntries, "Categories").apply {
-                        colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW)
+                        colors = listOf(Color.LTGRAY, Color.CYAN, Color.MAGENTA, Color.YELLOW)
                         valueTextSize = 14f
                         valueTextColor = Color.WHITE
                     }
-
                     val pieData = PieData(dataSet)
 
                     data = pieData

@@ -48,6 +48,9 @@ import com.example.baukur.data.UserDBHelper
 import com.example.baukur.ui.common.DatePickerFieldToModal
 import com.example.baukur.ui.common.convertMillisToDate
 import kotlinx.coroutines.launch
+import java.text.SimpleDateFormat
+import java.util.Date
+import java.util.Locale
 
 @Composable
 fun AddExpenseScreen(snackbarHostState: SnackbarHostState, navigateToNewCategory: () -> Unit, navigateToEditCategory: () -> Unit) {
@@ -121,12 +124,14 @@ fun AddExpenseScreen(snackbarHostState: SnackbarHostState, navigateToNewCategory
                     composableScope.launch {
                         try {
                             println(convertMillisToDate(selectedDate!!))
+                            val formatter = SimpleDateFormat("yyyy-MM-dd", Locale.US)
+                            val dateString = formatter.format(Date(selectedDate!!))
                             val res = RetrofitInstance.api.createExpense(
                                 CreateExpensePayload(
                                     expenseName,
                                     expenseAmount.toDouble(),
                                     expenseComment,
-                                    convertMillisToDate(selectedDate!!),
+                                    dateString,
                                     selectedCategory!!.id
                                 )
                             )

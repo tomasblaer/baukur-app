@@ -18,6 +18,15 @@ data class CreateExpensePayload(
     val categoryId: Int,
 )
 
+data class EditExpensePayload(
+    val id: Int,
+    val name: String,
+    val amount: Double,
+    val comment: String,
+    val date: String,
+    val categoryId: Int,
+)
+
 data class CreateCategoryPayload(
     val name: String,
     val description: String,

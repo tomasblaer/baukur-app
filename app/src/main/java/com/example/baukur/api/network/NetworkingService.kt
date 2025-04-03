@@ -6,6 +6,8 @@ import com.example.baukur.api.entities.CreateDefaultCategoriesPayload
 import com.example.baukur.api.entities.CreateExpensePayload
 import com.example.baukur.api.entities.CreateUserPayload
 import com.example.baukur.api.entities.DefaultCategory
+import com.example.baukur.api.entities.EditExpensePayload
+import com.example.baukur.api.entities.Expense
 import com.example.baukur.api.entities.User
 import okhttp3.RequestBody
 import retrofit2.Response
@@ -13,6 +15,7 @@ import retrofit2.http.Body
 import retrofit2.http.DELETE
 import retrofit2.http.GET
 import retrofit2.http.Multipart
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Part
@@ -48,4 +51,7 @@ interface NetworkingService {
 
      @DELETE("/expenses")
      suspend fun deleteExpense(@Query("id") id: Int): Response<Unit>
+
+     @PATCH("/expenses")
+     suspend fun editExpense(@Body payload: EditExpensePayload) : Response<Expense>
 }

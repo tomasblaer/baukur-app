@@ -5,13 +5,18 @@ import androidx.compose.foundation.gestures.detectHorizontalDragGestures
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
 import androidx.compose.material3.Divider
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -23,18 +28,25 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.baukur.api.entities.Category
+import com.example.baukur.api.entities.CreateExpensePayload
+import com.example.baukur.api.entities.EditExpensePayload
 import com.example.baukur.api.entities.Expense
 import com.example.baukur.api.network.RetrofitInstance
 import kotlinx.coroutines.launch
+import kotlin.math.roundToInt
 
 
 @Composable
 fun HomeScreen(snackbarHostState: SnackbarHostState) {
     var categories by remember { mutableStateOf(emptyList<Category>()) }
     var composableScope = rememberCoroutineScope()
+    var showEditDialog by remember { mutableStateOf(false) }
+    var expenseToEdit by remember { mutableStateOf<Expense?>(null) }
 
     LaunchedEffect(Unit) {
         try {
@@ -53,14 +65,12 @@ fun HomeScreen(snackbarHostState: SnackbarHostState) {
         }
     }
 
-
     val expensesByDate = allExpenses.groupBy { (expense, _) -> expense.date }
         .mapValues { (_, expenses) ->
             expenses.sortedByDescending { (expense, _) -> expense.date }
         }
         .toList()
         .sortedByDescending { (date, _) -> date }
-
 
     LazyColumn(modifier = Modifier.padding(16.dp)) {
         expensesByDate.forEach { (date, expensesForDate) ->
@@ -80,8 +90,8 @@ fun HomeScreen(snackbarHostState: SnackbarHostState) {
                     expense = expense,
                     categoryName = categoryName,
                     onEdit = {
-                        println("Edit: ${expense.name}")
-                        // TODO: Open edit dialog or navigate
+                        expenseToEdit = expense
+                        showEditDialog = true
                     },
                     onDelete = {
                         composableScope.launch {
@@ -107,6 +117,40 @@ fun HomeScreen(snackbarHostState: SnackbarHostState) {
                 Divider(modifier = Modifier.padding(vertical = 8.dp))
             }
         }
+    }
+
+    if (showEditDialog && expenseToEdit != null) {
+        EditExpenseDialog(
+            expense = expenseToEdit!!,
+            onDismiss = { showEditDialog = false },
+            onSave = { updatedExpense ->
+                composableScope.launch {
+                    RetrofitInstance.api.editExpense(
+                        EditExpensePayload(
+                            updatedExpense.id,
+                            updatedExpense.name,
+                            updatedExpense.amount,
+                            updatedExpense.comment,
+                            updatedExpense.date,
+                            updatedExpense.categoryId
+                        )
+                    )
+                    snackbarHostState.showSnackbar(
+                        message = "Edited expense: ${updatedExpense.name}",
+                        duration = SnackbarDuration.Short
+                    )
+                    showEditDialog = false
+                    try {
+                        val res = RetrofitInstance.api.getCategories()
+                        res.body()?.let {
+                            categories = it
+                        }
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                    }
+                }
+            }
+        )
     }
 }
 
@@ -138,6 +182,7 @@ fun SwipeableExpenseItem(
                     }
                 }
             }
+            .offset { IntOffset(offsetX.roundToInt(), 0) }
             .background(Color(0xFFF5F5F5))
             .padding(12.dp)
     ) {
@@ -150,6 +195,59 @@ fun SwipeableExpenseItem(
     }
 }
 
+@Composable
+fun EditExpenseDialog(
+    expense: Expense,
+    onDismiss: () -> Unit,
+    onSave: (Expense) -> Unit
+) {
+    var name by remember { mutableStateOf(expense.name) }
+    var amount by remember { mutableStateOf(expense.amount) }
+    var comment by remember { mutableStateOf(expense.comment) }
+    var date by remember { mutableStateOf(expense.date) }
+
+    AlertDialog(
+        onDismissRequest = onDismiss,
+        title = { Text("Edit Expense") },
+        text = {
+            Column {
+                TextField(
+                    value = name,
+                    onValueChange = { name = it },
+                    label = { Text("Name") }
+                )
+                TextField(
+                    value = amount.toString(),
+                    onValueChange = { amount = it.toDoubleOrNull() ?: amount },
+                    label = { Text("Amount") },
+                    keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
+                )
+                TextField(
+                    value = comment,
+                    onValueChange = { comment = it },
+                    label = { Text("Comment") }
+                )
+                TextField(
+                    value = date,
+                    onValueChange = { date = it },
+                    label = { Text("Date") }
+                )
+            }
+        },
+        confirmButton = {
+            Button(onClick = {
+                onSave(expense.copy(name = name, amount = amount, comment = comment, date = date))
+            }) {
+                Text("Save")
+            }
+        },
+        dismissButton = {
+            Button(onClick = onDismiss) {
+                Text("Cancel")
+            }
+        }
+    )
+}
 
 
 

@@ -32,35 +32,34 @@ fun PieChartComposable() {
         }
     }
 
-    println(pieEntries)
+    if (pieEntries.isNotEmpty()) {
+        AndroidView(
+            modifier = Modifier.fillMaxSize(),
+            factory = { context ->
+                PieChart(context).apply {
+                    val dataSet = PieDataSet(pieEntries, "Categories").apply {
+                        colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW)
+                        valueTextSize = 14f
+                        valueTextColor = Color.WHITE
+                    }
 
+                    val pieData = PieData(dataSet)
 
-    AndroidView(
-        modifier = Modifier.fillMaxSize(),
-        factory = { context ->
-            PieChart(context).apply {
-                val dataSet = PieDataSet(pieEntries, "Categories").apply {
-                    colors = listOf(Color.BLUE, Color.RED, Color.GREEN, Color.YELLOW)
-                    valueTextSize = 14f
-                    valueTextColor = Color.WHITE
-                }
+                    data = pieData
+                    description.isEnabled = false
+                    centerText = "Categories"
+                    setEntryLabelColor(Color.BLACK)
+                    animateY(1000)
 
-                val pieData = PieData(dataSet)
-
-                data = pieData
-                description.isEnabled = false
-                centerText = "Categories"
-                setEntryLabelColor(Color.BLACK)
-                animateY(1000)
-
-                legend.apply {
-                    orientation = Legend.LegendOrientation.VERTICAL
-                    isWordWrapEnabled = true
-                    textColor = Color.BLACK
+                    legend.apply {
+                        orientation = Legend.LegendOrientation.VERTICAL
+                        isWordWrapEnabled = true
+                        textColor = Color.BLACK
+                    }
                 }
             }
-        }
-    )
+        )
+    }
 }
 
 suspend fun fetchCategories(categories: MutableList<Category>) {
